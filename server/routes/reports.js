@@ -1,0 +1,1 @@
+import {Router} from 'express';import {protect} from '../middleware/auth.js';import {dashboard,spending,inventory} from '../controllers/reportController.js';const r=Router();r.use(protect);r.get('/dashboard',dashboard);r.get('/spending',spending);r.get('/inventory',inventory);export default r;

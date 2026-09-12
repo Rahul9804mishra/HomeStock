@@ -1,0 +1,6 @@
+import bcrypt from 'bcrypt';import jwt from 'jsonwebtoken';import User from '../models/User.js';
+const token=u=>jwt.sign({id:u._id},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRES_IN||'7d'});
+export async function register(req,res,next){try{const {name,email,password}=req.body;if(await User.exists({email}))return res.status(409).json({message:'Email already registered'});const hash=await bcrypt.hash(password,12);const u=await User.create({name,email,password:hash});res.status(201).json({token:token(u),user:{id:u._id,name:u.name,email:u.email,role:u.role}});}catch(e){next(e)}}
+export async function login(req,res,next){try{const {email,password}=req.body;const u=await User.findOne({email}).select('+password');if(!u||!(await bcrypt.compare(password,u.password)))return res.status(401).json({message:'Invalid email or password'});res.json({token:token(u),user:{id:u._id,name:u.name,email:u.email,role:u.role}});}catch(e){next(e)}}
+export async function me(req,res){res.json({user:req.user})}
+export async function updateProfile(req,res,next){try{const u=await User.findById(req.user._id);u.name=req.body.name?.trim()||u.name;if(req.body.password)u.password=await bcrypt.hash(req.body.password,12);await u.save();res.json({user:{id:u._id,name:u.name,email:u.email,role:u.role}})}catch(e){next(e)}}

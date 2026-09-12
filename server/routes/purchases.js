@@ -1,0 +1,1 @@
+import {Router} from 'express';import {protect} from '../middleware/auth.js';import {list,create,update,remove} from '../controllers/purchaseController.js';const r=Router();r.use(protect);r.route('/').get(list).post(create);r.route('/:id').put(update).delete(remove);export default r;
